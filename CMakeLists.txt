@@ -299,6 +299,12 @@ endif()
 
 list(APPEND dnapca_files 
     ${PROJECT_SOURCE_DIR}/common/common.cpp
+    ${PROJECT_SOURCE_DIR}/common/dot.cpp
+    ${PROJECT_SOURCE_DIR}/common/matrix.cpp
+    ${PROJECT_SOURCE_DIR}/common/matrix_real.cpp
+    ${PROJECT_SOURCE_DIR}/common/logging.cpp
+    ${PROJECT_SOURCE_DIR}/common/Adam.cpp
+    ${PROJECT_SOURCE_DIR}/dnapca/single_node_pca.cpp
 )
 
 
@@ -309,6 +315,7 @@ if(DEFINED ENV{DNAPCA_MPI})
     )
 
 endif()
+
 
 
 add_library(dnapca SHARED
@@ -323,6 +330,11 @@ target_compile_options(dnapca PUBLIC
 
 
 
+
+# External libarray for calculating QFT on DFE
+add_library( maxtx SHARED IMPORTED )
+set_target_properties( maxtx PROPERTIES IMPORTED_LOCATION $ENV{MAXTX_LIB_DIR}/libmaxtx.a )
+
 # adding linking options
 target_link_libraries( dnapca PRIVATE
     ${BLAS_LIBRARIES}
@@ -331,13 +343,19 @@ target_link_libraries( dnapca PRIVATE
     ${TBBMALLOC_LIB}
     ${TBBMALLOC_PROXY_LIB}
     ${TBB_LIB}
-    ${GSL_LIB}
     ${MPI_C_LIBRARIES}
+    maxtx
     )
+
+
 
 
 target_include_directories(dnapca PRIVATE
                             .
+                            ./common/include
+                            $ENV{MAXTX_INC_DIR}/maxtx
+                            $ENV{MAXTX_INC_DIR}/backend
+                            $ENV{MAXTX_INC_DIR}/xtx
                             ${EXTRA_INCLUDES})
 
 
@@ -352,9 +370,9 @@ set_target_properties(
 
 
 # adding CMAKE files for Python extensions
-#add_subdirectory (dnacpapy/decomposition)
-#add_subdirectory (dnacpapy/gates)
-#add_subdirectory (dnacpapy/nn)
+add_subdirectory (dnapcapy)
+#add_subdirectory (dnapcapy/gates)
+#add_subdirectory (dnapcapy/nn)
 
 
 if(DEFINED ENV{DNAPCA_CTEST})

@@ -47,7 +47,7 @@ setup(
         "scipy",
     ],
     tests_require=["pytest"],
-    description='The C++ binding for the SQUANDER package',
+    description='PCA analysis for DNA daat',
     long_description=open("./README.md", 'r').read(),
     long_description_content_type="text/markdown",
     keywords="test, cmake, extension",
